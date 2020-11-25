@@ -1,0 +1,19 @@
+.fa-messages
+{
+    display: block;
+    width: 100%;
+    height: 50px;
+    padding: 12px;
+    margin: 0px 0px 10px 0px;
+}
+
+.fa-messages.success
+{
+    background-color: #009300;
+    color: #fff;
+}
+
+.fa-messages.warning
+{
+    background-color: #f7e381;
+}

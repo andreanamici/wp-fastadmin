@@ -1,0 +1,54 @@
+
+/* Form errors */
+
+.fa-form-field-errors
+{
+    display: inline-block;
+    padding: 2px !important;
+    margin: 0px !important;
+    color: #ec0707;
+    font-size: 12px;
+    list-style:none;
+}
+
+/* flash messages */
+
+.fa-messages
+{
+    display: block;
+    height: auto;
+    padding: 12px !important;
+    font-size: 20px;
+    margin: 0px 0px 10px 0px !important;
+}
+
+.fa-messages.success
+{
+    background-color: #009300;
+    color: #fff;
+}
+
+.fa-messages.error
+{
+    background-color: #ec0707;
+    color: #fff;
+}
+
+.fa-messages.warning
+{
+    background-color: #f7e381;
+}
+
+
+/* jQuery ui */
+a.ui-button.ui-widget.ui-button-icon-only.custom-combobox-toggle.ui-corner-right
+{
+    padding: 10px;
+}
+
+.ui-menu.ui-widget.ui-widget-content.ui-autocomplete 
+{
+    max-height: 410px;
+    overflow-y: scroll;
+    text-transform: capitalize;
+}
