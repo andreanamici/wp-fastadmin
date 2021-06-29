@@ -15,21 +15,6 @@
             </ul>
         </div>
     <?php } ?>
-    <?php if(!empty($data['stats'])) { ?>
-         <div class="fa-main-stats">
-             <h2>Statistiche generali</h2><hr />
-            <table>
-                <tbody>
-                <?php foreach($data['stats'] as $stat){ ?>
-                <tr>
-                    <th><?php echo $stat['label'];?></th>
-                    <td><?php echo $stat['value'];?></td>
-                </tr>
-                <?php } ?>
-                </tbody>
-            </table>
-        </div>
-    <?php } ?>
     </div>
     <?php fa_resource_include('admin/layout/footer',array('data' => $data));?>
 
