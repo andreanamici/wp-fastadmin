@@ -77,9 +77,9 @@ class FastAdmin extends FastAdminCore
     {   
         if(strstr($className,'\\') != false)
         {
-            $filePath = WP_FA_BASE_PATH.'/..' . DIRECTORY_SEPARATOR . str_replace('\\','/',$className).'.php';
-            
-            $filePath = str_replace('FastAdmin/','fastadmin/',$filePath);
+            $filePath = WP_FA_BASE_PATH. DIRECTORY_SEPARATOR . str_replace('\\','/',$className).'.php';
+
+            $filePath = str_replace('FastAdmin/','',$filePath);
 
             if(file_exists($filePath))
             {
