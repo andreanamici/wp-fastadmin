@@ -178,15 +178,6 @@ class FastAdminResources extends FastAdminCore
     public function load_frontend_pages()
     {
         $this->pages['frontend'] = require_once WP_FA_BASE_PATH_CONFIGS. '/pages_frontend.php';
-        
-        if($this->pages['frontend'])
-        {
-//            $fa = fa_get();
-//            add_action( 'wp',  function() use ($fa){
-//                $fa->run();
-//            });
-        }
-        
         return $this;
     }
     

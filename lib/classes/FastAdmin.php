@@ -173,6 +173,7 @@ class FastAdmin extends FastAdminCore
              ->load_resources()
              ->load_assets()
              ->load_session()
+             ->load_actions()
              ->load_cron();        
     }
         
@@ -189,6 +190,14 @@ class FastAdmin extends FastAdminCore
         return $this;
     }
     
+
+    private function load_actions()
+    {
+        $this->actions = new FastAdminActions();
+        $this->actions->wp_init();
+        
+        return $this;
+    }
     
     /**
      * Load text domains text
