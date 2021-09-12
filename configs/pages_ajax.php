@@ -11,6 +11,7 @@ return array(
      * echo action
      */
     'echo' => array(
+        'logged'     => false,
         'capability' => 'edit_posts',
         'callable'   => fa_action_callable('FastAdmin\actions\admin\Dashboard','echo'),
     ),

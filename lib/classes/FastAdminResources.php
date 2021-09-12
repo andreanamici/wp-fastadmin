@@ -18,15 +18,18 @@ class FastAdminResources extends FastAdminCore
      */
     protected $shortcuts;
     
+    public function __construct()
+    {
+        $this->pages = array();
+        $this->load_pages('admin')
+             ->load_pages('ajax')
+             ->load_pages('frontend');
+    }
+
     public function wp_init()
     {
-        $this->pages          = array();
-        $this->pages['admin'] = require_once WP_FA_BASE_PATH_CONFIGS. '/pages_admin.php';
-        
         add_action('admin_menu', array($this, 'admin_menu'));  
-        
-        add_action('wp_loaded', array($this, 'load_frontend_pages')); 
-        
+                
         add_action('wp_loaded', array($this, 'load_shortcuts'));
 
         $self  = $this;
@@ -102,7 +105,7 @@ class FastAdminResources extends FastAdminCore
      * 
      * @return FastAdminResources
      */
-    public function add_page($name, $where, array $info)
+    public function add_page($page, $where, array $info)
     {
         $this->pages[$where][$page] = $info;
         return $this;
@@ -175,9 +178,9 @@ class FastAdminResources extends FastAdminCore
      * 
      * @return FastAdminResources
      */
-    public function load_frontend_pages()
+    public function load_pages($type)
     {
-        $this->pages['frontend'] = require_once WP_FA_BASE_PATH_CONFIGS. '/pages_frontend.php';
+        $this->pages[$type] = require_once WP_FA_BASE_PATH_CONFIGS. '/pages_'.$type.'.php';        
         return $this;
     }
     
@@ -207,13 +210,13 @@ class FastAdminResources extends FastAdminCore
      * @return string
      */
     public function render_resource($page, array $data = array())
-    {                                
+    {                
         @ob_start();
-                
+
         $this->include_resource($page, $data);
-        
+
         $output = ob_get_clean();
-        
+
         return $output;
     }
     
@@ -251,7 +254,7 @@ class FastAdminResources extends FastAdminCore
         extract($data);
         
         require $file_path; 
-        
+
         return true;
     }   
     

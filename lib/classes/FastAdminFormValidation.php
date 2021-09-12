@@ -32,7 +32,7 @@ class FastAdminFormValidation extends FastAdminCore
      * Array of validation messages
      * @var array
      */
-    protected $errors_messages;
+    public $errors_messages;
     
     /**
      * Callback method context
@@ -54,12 +54,13 @@ class FastAdminFormValidation extends FastAdminCore
     
     public function __construct()
     {
-        $configs                = require_once WP_FA_BASE_PATH_CONFIGS.'/form_validation.php';
+        $configs                = include WP_FA_BASE_PATH_CONFIGS.'/form_validation.php';
         $locale                 = fa_get_locale();
         
         $this->data              = isset($configs['default_data'])            ? $configs['default_data']            : array();
         $this->errors_messages   = isset($configs['rules_messages'][$locale]) ? $configs['rules_messages'][$locale] : $configs['rules_messages'][$configs['default_lang']];
         $this->rules             = isset($configs['rules'])                   ? $configs['rules']                   : array();
+        
         $this->before_validation = isset($configs['before_validation'])       ? $configs['before_validation']       : array();
         $this->after_validation  = isset($configs['after_validation'])        ? $configs['after_validation']        : array();
         $this->callback_context  = fa_get('actions');
@@ -84,6 +85,7 @@ class FastAdminFormValidation extends FastAdminCore
         if($error_msg)
         {
             $this->errors_messages[$rules] = $error_msg;
+            $this->errors_messages[$field] = $error_msg;
         }
       
         return $this;
@@ -190,7 +192,7 @@ class FastAdminFormValidation extends FastAdminCore
         {
            call_user_func_array($this->before_validation, array($this));
         }
-        
+
         foreach($this->rules_data as $field => $rules)
         {                              
             $rulesArray = $this->_parse_rules($rules);
@@ -206,7 +208,7 @@ class FastAdminFormValidation extends FastAdminCore
                     }
                 }
 
-                $value = array_key_exists($field, $this->data) ? $this->data[$field] : null;
+                $value = array_key_exists($field, $data) ? $data[$field] : null;
 
                 if(!$is_required && $value === '')
                 {
@@ -230,7 +232,7 @@ class FastAdminFormValidation extends FastAdminCore
                     if(!call_user_func_array($rule['callable'], $rule['args']))
                     {
                         $errorMessage           = $this->get_error_message($rule['name']);
-                        $this->errors[$field][] = $this->_format_error($errorMessage, $rule['args']);
+                        $this->errors[$field][] = isset($this->errors_messages[$field]) ? $this->errors_messages[$field] : $this->_format_error($errorMessage, $rule['args']);
                         break;
                     }
                 }
@@ -252,7 +254,7 @@ class FastAdminFormValidation extends FastAdminCore
      * 
      * @param mixed $rules string rules or array or rules
      * 
-     * @return boolean
+     * @return array
      */
     protected function _parse_rules(array $rules)
     {
@@ -295,8 +297,6 @@ class FastAdminFormValidation extends FastAdminCore
                     break;
                 }
                 
-                
-
                 $parsedRules[] = array(
                     'name'     => $rule,
                     'callable' => isset($this->rules[$rule]) ? $this->rules[$rule] : array($context, $rule),

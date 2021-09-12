@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: FastAdmin
-Plugin URI: https://www.andreanamici.it/wp-plugins/fastadmin
+Plugin URI: https://github.com/andreanamici/wp-fastadmin
 Description: Questo è il plugin che gestisce amministrazioni personalizzate
 Author: Andrea Namici
-Version: 1
+Version: 2
 Author URI: http://www.andreanamici.it
 */
 

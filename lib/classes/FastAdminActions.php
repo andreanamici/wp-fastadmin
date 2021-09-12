@@ -60,6 +60,28 @@ class FastAdminActions extends FastAdminCore
         $this->session   = fa_get('session');    
     }
     
+
+    public function wp_register_ajax_actions()
+    {
+        $ajax_actions = fa_get('resources')->get_pages('ajax');
+
+        foreach($ajax_actions as $action => $info)
+        {
+            if(empty($info['logged']))
+            {
+                $wp_action_name = 'wp_ajax_nopriv_'.$action;                
+                add_action($wp_action_name, $info['callable']);
+                
+                $wp_action_name = 'wp_ajax_'.$action;                
+                add_action($wp_action_name, $info['callable']);
+            }
+            else
+            {
+                $wp_action_name = 'wp_ajax_'.$action;                
+                add_action($wp_action_name, $info['callable']);
+            }
+        }   
+    }
     /**
      * Called on pre dispatch
      */
@@ -159,7 +181,7 @@ class FastAdminActions extends FastAdminCore
     public function render($view, array $data = array(), $return = false)       
     {
         $data = $this->_pre_response($data);
-        return  $return ? fa_resource_render($this->layout.'/' .$view, array('data' => $data)) : fa_resource_include($this->layout.'/'. $view, array('data' => $data));
+        return  $return ? fa_resource_render($this->layout.'/' .$view, $data) : fa_resource_include($this->layout.'/'. $view, $data);
     }
     
     
@@ -290,14 +312,17 @@ class FastAdminActions extends FastAdminCore
     {
         $reflectionObject = new \ReflectionClass(get_called_class());
         $publicMethods    = $reflectionObject->getMethods(\ReflectionMethod::IS_PUBLIC);
-        
+
         if(!empty($publicMethods))
         {
             foreach($publicMethods as $publicMethod)/*@var $publicMethod ReflectionMethod*/
             {
-                if(preg_match('/^ajax([A-z]+)$/',$publicMethod, $matches))
+                if(preg_match('/^ajax([A-z\_]+)$/',$publicMethod, $matches))
                 {
                     $wp_action_name = 'wp_ajax_'.strtolower($matches[1]);
+                    add_action($wp_action_name, array($this, $publicMethod->getName()));
+
+                    $wp_action_name = 'wp_ajax_nopriv_'.strtolower($matches[1]);
                     add_action($wp_action_name, array($this, $publicMethod->getName()));
                 }
             }

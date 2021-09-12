@@ -111,7 +111,22 @@ class FastAdminListTable extends \WP_List_Table
      * @var bool
      */
     protected $nonce_field = false;
+
+
+    /**
+     * add export csv button
+     * 
+     * @var bool
+     */
+    protected $export_csv = false;
     
+    /**
+     * filename exported
+     * 
+     * @var string
+     */
+    protected $export_filename = 'export-data';
+
     /**
      * Callable callend on each row of table
      * 
@@ -122,7 +137,7 @@ class FastAdminListTable extends \WP_List_Table
     public function __construct(array $args)
     {
         parent::__construct($args);
-        
+
         if(!empty($args['model']))
         {
             $this->model   = $args['model'];
@@ -160,8 +175,13 @@ class FastAdminListTable extends \WP_List_Table
         
         $this->paged   = isset($_GET['paged'])     ? $_GET['paged']   : null;
         
+        $this->export_csv      = isset($args['export_csv']) ? $args['export_csv'] : $this->export_csv;
+
+        $this->export_filename = isset($args['export_filename']) ? $args['export_filename'] : $this->export_filename;
+
         $this->_init_filters();
     }
+
     
     public function get_count_rows()
     {
@@ -186,7 +206,7 @@ class FastAdminListTable extends \WP_List_Table
     public function get_rows()
     {
         if(empty($this->rows) && $this->model)
-        {                                   
+        {                 
             $this->rows = $this->model->get_list_table_data('select',array(
                 'where'     => $this->_get_filters_values(),
                 'fields'    => $this->get_columns_fields(),
@@ -422,13 +442,13 @@ class FastAdminListTable extends \WP_List_Table
             
             unset($get_params['paged']);
             
-            echo "<td class='fa-list-filters-buttons'>".get_submit_button('Filtra','primary','',false)." ".get_submit_button('Annulla','reset','',false,array('onclick' => 'location.href="'. fa_action_path($_GET['page'], $get_params).'";return false;'))."</td>";
+            echo "<td class='fa-list-filters-buttons'>".get_submit_button('Filtra','primary','',false)." ".get_submit_button('Cancella filtri','reset','',false,array('onclick' => 'location.href="'. fa_action_path($_GET['page'], $get_params).'";return false;'))."</td>";
         }
         
         echo "</tr>";
     }
     
-    public function column_default($item, $column_name)
+    public function column_default($item, $column_name, $exporting = false)
     {
         if(!isset($this->columns[$column_name]))
         {
@@ -445,6 +465,18 @@ class FastAdminListTable extends \WP_List_Table
         
         $value    = isset($item[$column_name]) ? $item[$column_name] : $value;
         
+        $modifier = isset($column['modifier']) ? $column['modifier'] : false;
+        if($modifier && !$exporting)
+        {
+            return call_user_func_array($column['modifier'], array($value, $item));
+        }
+
+        $modifier_export = isset($column['modifier_export']) ? $column['modifier_export'] : false;
+        if($modifier_export && $exporting)
+        {
+            return call_user_func_array($column['modifier_export'], array($value, $item));
+        }
+        
         if(is_null($value))
         {
             return '';
@@ -460,13 +492,6 @@ class FastAdminListTable extends \WP_List_Table
             {
                 return sprintf('%1$s %2$s', $value, $this->row_actions($actions));
             }
-        }
-        
-        $modifier = isset($column['modifier']) ? $column['modifier'] : false;
-        
-        if($modifier)
-        {
-            return call_user_func_array($column['modifier'], array($value, $item));
         }
         
         return $value;
@@ -511,8 +536,78 @@ class FastAdminListTable extends \WP_List_Table
             }
         } 
         
-        $this->_column_headers = array($columns, $hidden, $sortable);
+        $this->_column_headers = array($columns, $hidden, $sortable);        
+
+        if($this->export_csv && isset($_GET['export_csv']) && $_GET['export_csv'] == 'true')
+        {
+            return $this->export_csv();
+        }
+    }
+
+    /**
+     * Return all exportable items by filters and column sorting in query string without pagination
+     * 
+     * @return array
+     */
+    protected function get_items_exportable()
+    {
+        $this->per_page = null;
+        $this->paged    = false;
+
+        $this->rows     = array();
+        $items          = $this->get_rows();
+
+        foreach($items as $key => $item)
+        {
+            foreach($item as $column_name => $value)
+            {
+                $items[$key][$column_name]  = $this->column_default($item,$column_name, true);
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * Output CSV file to browser
+     */
+    protected function export_csv()
+    {        
+        $items = $this->get_items_exportable();
+
+        ob_get_clean();
+
+        // disable caching
+        $now = gmdate("D, d M Y H:i:s");
+        header("Expires: Tue, 03 Jul 2001 06:00:00 GMT");
+        header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
+        header("Last-Modified: {$now} GMT");
         
+        // force download  
+        header("Content-Type: text/plain");
+
+        // disposition / encoding on response body
+        header("Content-Disposition: attachment;filename=\"".$this->export_filename.".csv\"");
+        
+        $df = fopen("php://output", 'w');
+        
+        //csv heaeder
+        $first_item     = reset($items);
+        $export_columns = array_keys($first_item);
+
+        foreach($export_columns as $key => $export_column){
+            $export_columns[$key] = isset($this->columns[$export_column]['export_title']) ? $this->columns[$export_column]['export_title'] : $this->columns[$export_column]['title'];
+        }
+
+        fputcsv($df, $export_columns);
+
+        foreach ($items as $item) {
+            fputcsv($df, $item);
+        }
+        
+        fclose($df);
+        ob_get_clean();
+        exit;
     }
     
     protected function _init_orderby($args)
@@ -619,6 +714,7 @@ class FastAdminListTable extends \WP_List_Table
                     <?php $this->bulk_actions( $which ); ?>
             </div>
             <?php endif;
+            $this->export_buttons($which);
             $this->extra_tablenav( $which );
             $this->pagination( $which );
 ?>
@@ -627,6 +723,21 @@ class FastAdminListTable extends \WP_List_Table
     </div>
 <?php
 	}
+
+    protected function export_buttons()
+    {
+        $current_url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+        $current_url = remove_query_arg( 'export_csv', $current_url );
+        $current_url = add_query_arg('export_csv', 'true');
+
+        ?>
+        <div class="fa-table-export-buttons">
+        <?php  if($this->export_csv){ ?>
+            <a href="<?php echo $current_url;?>" class="button button-secondary fa-confirmbox" data-confirm-text="Si desidera esportare in CSV?" target="_blank"><?php echo __( 'Export CSV' );?></a>
+        <?php  } ?>
+        </div>
+        <?php
+    }
         
     protected function _get_filters_values()
     {

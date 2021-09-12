@@ -37,8 +37,9 @@ class FastAdminDB extends FastAdminCore
     {        
         global $wpdb;/*@var $wpdb \wpdb*/
         $this->wpdb = $wpdb;
+        fa_set('wpdb', $this->wpdb);
     }
-   
+
     public function get_table_name($table)
     {
         if(strpos($table, $this->wpdb->prefix) !== false)
@@ -54,6 +55,13 @@ class FastAdminDB extends FastAdminCore
         return  $this->wpdb->get_col("DESC {$table}", 0);
     }
        
+    
+    public function get_table_primary_key($table)
+    {
+        $res = $this->wpdb->get_col("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{$this->wpdb->dbname}'  AND TABLE_NAME = '{$table}' AND COLUMN_KEY = 'PRI'", 0);
+        return !empty($res) ? $res[0] : null;
+    }
+
     /**
      * Filter data by sql table column's name
      * 

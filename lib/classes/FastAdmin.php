@@ -77,8 +77,8 @@ class FastAdmin extends FastAdminCore
     {   
         if(strstr($className,'\\') != false)
         {
-            $filePath = WP_FA_BASE_PATH. DIRECTORY_SEPARATOR . str_replace('\\','/',$className).'.php';
-
+            $filePath = WP_FA_BASE_PATH. DIRECTORY_SEPARATOR . str_replace('\\',DIRECTORY_SEPARATOR,$className).'.php';
+            
             $filePath = str_replace('FastAdmin/','',$filePath);
 
             if(file_exists($filePath))
@@ -120,10 +120,10 @@ class FastAdmin extends FastAdminCore
      * @return void
      */
     public function run()
-    {   
-        if(!empty($_GET['page']))
+    {
+        if(!empty($_REQUEST['page']))
         {
-            if($action = $this->resources->get_page($_GET['page'], is_admin() ? 'admin' : 'frontend'))
+            if($action = $this->resources->get_page($_REQUEST['page'], is_admin() ? 'admin' : 'frontend'))
             {
                 if(!empty($action['global']))
                 {
@@ -173,8 +173,8 @@ class FastAdmin extends FastAdminCore
              ->load_resources()
              ->load_assets()
              ->load_session()
-             ->load_actions()
-             ->load_cron();        
+             ->load_cron()
+             ->load_actions();      
     }
         
     /**
@@ -190,15 +190,20 @@ class FastAdmin extends FastAdminCore
         return $this;
     }
     
-
+    /**
+     * Load actions
+     * 
+     * @return FastAdmin
+     */
     private function load_actions()
     {
         $this->actions = new FastAdminActions();
         $this->actions->wp_init();
+        $this->actions->wp_register_ajax_actions();
         
         return $this;
     }
-    
+
     /**
      * Load text domains text
      * 

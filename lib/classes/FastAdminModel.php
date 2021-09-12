@@ -147,6 +147,17 @@ class FastAdminModel extends FastAdminDB
         return parent::get_table_columns($table);
     }
     
+    public function set_table_name($table, $prefixed = true, $primary_key = null)
+    {
+        $table = $prefixed ? parent::get_table_name($table) : $table;
+        $this->table_name = $table;
+
+        $primary_key = $primary_key ? $primary_key : $this->get_table_primary_key($this->table_name);
+        $this->field_id = $primary_key;
+
+        return $this;
+    }
+
     /**
      * Retrive model table name
      * 
@@ -238,7 +249,7 @@ class FastAdminModel extends FastAdminDB
      * @param string $having
      * 
      * @return array
-     */
+     */                         
     public function get_records_by(array $where, $fields = '*', $join = null, $orderby = null, $pagination = null, $groupby = null, $having = null)
     {
         $sql = $this->_build_sql(array('fields'     => $fields,
@@ -250,7 +261,29 @@ class FastAdminModel extends FastAdminDB
                                        'groupby'    => $groupby,
                                        'having'     => $having
                ));
+
+               $records    = $this->wpdb->get_results($sql, $this->fetch_mode);
         
+        if(!empty($records))
+        {
+            foreach($records as $key => $record)
+            {
+                $records[$key] = $this->_post_get_record($record);
+            }
+        }
+        
+        return $records;
+    }
+    
+    public function get_all($fields = '*',$orderby = null, $pagination = null)
+    {
+        $sql = $this->_build_sql(array(
+                'fields'     => $fields,
+                'from'       => $this->table_name,
+                'orderby'    => $orderby, 
+                'pagination' => $pagination
+        ));
+
         $records    = $this->wpdb->get_results($sql, $this->fetch_mode);
         
         if(!empty($records))

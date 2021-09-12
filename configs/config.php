@@ -1,6 +1,6 @@
 <?php
 
-define("WP_FA_PLUGIN_NAME",'fastadmin');
+define("WP_FA_PLUGIN_NAME",'wp-fastadmin');
 
 define("WP_FA_SESSION_NAME", "wp_fa_admin");
 
