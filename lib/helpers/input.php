@@ -1,6 +1,6 @@
 <?php
 
-if(!function_exists('prsv_input_fetch'))
+if(!function_exists('fa_input_fetch'))
 {
     /**
      * Fetch data from all INPUT_* vars
@@ -12,7 +12,7 @@ if(!function_exists('prsv_input_fetch'))
      * 
      * @return mixed|bool
      */
-    function prsv_input_fetch($type, string $name = null, $default = false, $xss_filter = true)
+    function fa_input_fetch($type, string $name = null, $default = false, $xss_filter = true)
     {
        $global = array();
 
@@ -62,7 +62,7 @@ if(!function_exists('prsv_input_fetch'))
     }
 }
 
-if(!function_exists('prsv_input_post'))
+if(!function_exists('fa_input_post'))
 {
     /**
      * Fetch data from POST
@@ -73,14 +73,14 @@ if(!function_exists('prsv_input_post'))
      * 
      * @return mixed|bool
      */
-    function prsv_input_post($name = null, $default = false, $xss_filter = true)
+    function fa_input_post($name = null, $default = false, $xss_filter = true)
     {
-        return prsv_input_fetch(INPUT_POST,$name, $default, $xss_filter);
+        return fa_input_fetch(INPUT_POST,$name, $default, $xss_filter);
     }
 }
 
 
-if(!function_exists('prsv_input_get'))
+if(!function_exists('fa_input_get'))
 {
     /**
      * Fetch data from GET
@@ -91,14 +91,14 @@ if(!function_exists('prsv_input_get'))
      * 
      * @return mixed|bool
      */
-    function prsv_input_get($name, $default = false, $xss_filter = true)
+    function fa_input_get($name, $default = false, $xss_filter = true)
     {
-        return prsv_input_fetch(INPUT_GET, $name, $default, $xss_filter);
+        return fa_input_fetch(INPUT_GET, $name, $default, $xss_filter);
     }
 }
 
 
-if(!function_exists('prsv_input_request'))
+if(!function_exists('fa_input_request'))
 {
     /**
      * Fetch data from REQUEST
@@ -109,14 +109,14 @@ if(!function_exists('prsv_input_request'))
      * 
      * @return mixed|bool
      */
-    function prsv_input_request($name, $default = false, $xss_filter = true)
+    function fa_input_request($name, $default = false, $xss_filter = true)
     {
-        return prsv_input_fetch(INPUT_REQUEST,$name, $default, $xss_filter);
+        return fa_input_fetch(INPUT_REQUEST,$name, $default, $xss_filter);
     }
 }
 
 
-if(!function_exists('prsv_input_get_post'))
+if(!function_exists('fa_input_get_post'))
 {
     /**
      * Fetch data from GET or POST
@@ -127,19 +127,19 @@ if(!function_exists('prsv_input_get_post'))
      * 
      * @return mixed|bool
      */
-    function prsv_input_get_post($name, $default = false, $xss_filter = true)
+    function fa_input_get_post($name, $default = false, $xss_filter = true)
     {
-        $res = prsv_input_get($name, $default, $xss_filter);
+        $res = fa_input_get($name, $default, $xss_filter);
 
         if(!$res){
-            $res = prsv_input_post($name, $default, $xss_filter);
+            $res = fa_input_post($name, $default, $xss_filter);
         }
 
         return $res;
     }
 }
 
-if(!function_exists('prsv_input_session'))
+if(!function_exists('fa_input_session'))
 {
     /**
      * Fetch data from SESSION
@@ -149,13 +149,13 @@ if(!function_exists('prsv_input_session'))
      *
      * @return mixed|bool
      */
-    function prsv_input_session($name, $default = false)
+    function fa_input_session($name, $default = false)
     {
-        return prsv_input_fetch(INPUT_SESSION,$name, $default);
+        return fa_input_fetch(INPUT_SESSION,$name, $default);
     }
 }
 
-if(!function_exists('prsv_input_cookie'))
+if(!function_exists('fa_input_cookie'))
 {
     /**
      * Fetch data from COOKIE
@@ -165,14 +165,14 @@ if(!function_exists('prsv_input_cookie'))
      * 
      * @return mixed|bool
      */
-    function prsv_input_cookie($name, $default = false)
+    function fa_input_cookie($name, $default = false)
     {
-        return prsv_input_fetch(INPUT_COOKIE,$name, $default);
+        return fa_input_fetch(INPUT_COOKIE,$name, $default);
     }
 }
 
 
-if(!function_exists('prsv_input_server'))
+if(!function_exists('fa_input_server'))
 {
     /**
      * Fetch data from SERVER
@@ -182,14 +182,14 @@ if(!function_exists('prsv_input_server'))
      *
      * @return mixed|bool
      */
-    function prsv_input_server($name, $default = false)
+    function fa_input_server($name, $default = false)
     {
-        return prsv_input_fetch(INPUT_SERVER,$name, $default);
+        return fa_input_fetch(INPUT_SERVER,$name, $default);
     }
 }
 
 
-if(!function_exists('prsv_input_env'))
+if(!function_exists('fa_input_env'))
 {
     /**
      * Fetch data from ENV
@@ -200,8 +200,8 @@ if(!function_exists('prsv_input_env'))
      * 
      * @return mixed|bool
      */
-    function prsv_input_env($name, $default = false, $xss_filter = true)
+    function fa_input_env($name, $default = false, $xss_filter = true)
     {
-        return prsv_input_fetch(INPUT_ENV,$name, $default, $xss_filter);
+        return fa_input_fetch(INPUT_ENV,$name, $default, $xss_filter);
     }
 }
