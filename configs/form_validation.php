@@ -6,10 +6,10 @@
 return array(
     
     'default_data'   => $_POST,
-    'default_locale' => 'it_IT',
+    'default_locale' => 'en_US',
     
     'before_validation' => function(\FastAdmin\lib\classes\FastAdminFormValidation $formvalidation){},
-    'after_validation' => function($status){ !$status ?  fa_message_set('error', 'Attenzione, verificare i dati inseriti') : null; },
+    'after_validation'  => function($status){ !$status ?  fa_message_set('error', 'Attenzione, verificare i dati inseriti') : null; },
             
     'rules' => array(
         'required'                 => function($value){ return strlen($value) > 0; },
@@ -35,10 +35,11 @@ return array(
         'date_range'               => function($value, $input_name){ return fa_date_is_valid(fa_date_to_sql($value)) && strtotime(fa_date_to_sql($value).' 00:00:00') >= strtotime(fa_date_to_sql(fa_get('form')->get_data($input_name)).' 00:00:00'); },
         'datetime'                 => function($value){ return fa_datetime_to_sql($value); },
         'datetime_future'          => function($value){ return fa_datetime_to_sql($value) && strtotime(fa_datetime_to_sql($value)) > time(); },
+        'valid_name'               => function($value){ return preg_match('/^[A-z\s\']+$/', $value); }
     ),
                 
     'rules_messages' => array(
-            
+
             'it_IT' => array(
                 ''                           => 'campo non valido',
                 'required'                   => 'Questo campo è obbligatorio',
@@ -63,7 +64,35 @@ return array(
                 'date_range'                 => 'Intervallo temporale non valido',
                 'taxcode'                    => 'Codice fiscale non valido',
                 'datetime'                   => 'Data ora non valida',
-                'datetime_future'            => 'La data e ora deve essere successiva ad ora'
+                'datetime_future'            => 'La data e ora deve essere successiva ad ora',
+                'valid_name'                 => 'Questo valore non è valido'
+            ),
+            'en_US' => array(
+                ''                           => 'field not valid',
+                'required'                   => 'Field is required',
+                'email'                      => 'Mail address not valid',
+                'min_length'                 => 'Min length is %2$s characters',
+                'max_length'                 => 'Max length is %2$s characters',
+                'greater_than'               => 'Value must be greater than %2$s',
+                'greater_than_field'         => 'Value must be greater than "%3$s"',
+                'greater_equal_than'         => 'Value must be greater or equal than %2$s',
+                'greater_equal_than_field'   => 'Value must be greater or equal than  "%3$s"',
+                'less_than'                  => 'Value must be less than %2$s',
+                'less_than_field'            => 'Value must be less than "%3$s"',
+                'less_equal_than'            => 'Value must be less or equal than %2$s',
+                'less_equal_than_field'      => 'Value must be less or equal than "%3$s"',
+                'number'                     => 'This field must be numeric',
+                'amount'                     => 'Value not valid, must be a valid currency',
+                'phone'                      => 'Phone number invalid',
+                'vatnumber'                  => 'Vat number invalid',
+                'date'                       => 'Date not valid',
+                'date_gte_today'             => 'Date must be greater or equal than today',
+                'date_gt_today'              => 'Date must be greater than today',
+                'date_range'                 => 'Date range not valid',
+                'taxcode'                    => 'Fiscal code not valid',
+                'datetime'                   => 'Date time is invalid',
+                'datetime_future'            => 'Date time must be greater than now',
+                'valid_name'                 => 'This value is not valid'
             )        
     ),
 );

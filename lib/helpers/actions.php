@@ -1,6 +1,7 @@
 <?php
 
 
+
 if(!function_exists('fa_action_callable'))
 {
     /**
@@ -19,15 +20,20 @@ if(!function_exists('fa_action_callable'))
             wp_die('Cannot use name'.var_export($name,true).' is not a valid callable!');
         }
         
-        return function() use ($name, $action, $params){
+        return function($data = null) use ($name, $action, $params){
                     
                     $callable   = $name;
                     $parameters = array();
                     $obj        = null;
                     
+                    if($data && !is_array($data))
+                    {
+                        $parameters = array($data);
+                    }
+
                     if(function_exists($name))
                     {
-                        $parameters = $action ? array($action) + $params : $params;                      
+                        $parameters = array_merge($parameters, $action ? array($action) + $params : $params);
                     }
                     else if(class_exists($name))
                     {                        
