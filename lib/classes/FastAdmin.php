@@ -54,6 +54,14 @@ class FastAdmin extends FastAdminCore
      * @var FastAdminActions
      */
     public $actions;
+
+
+    /**
+     * Hooks class
+     * 
+     * @var FastAdminHooks
+     */
+    public $hooks;
     
     /**
      * Current locale
@@ -102,7 +110,7 @@ class FastAdmin extends FastAdminCore
         add_action('wp_loaded', array($this, 'run'),100);
         
         $this->locale = get_locale();
-        
+                
         return $this;
     }
     
@@ -173,8 +181,10 @@ class FastAdmin extends FastAdminCore
              ->load_resources()
              ->load_assets()
              ->load_session()
+             ->load_hooks()
+             ->load_actions()
              ->load_cron()
-             ->load_actions();      
+        ;
     }
         
     /**
@@ -200,6 +210,14 @@ class FastAdmin extends FastAdminCore
         $this->actions = new FastAdminActions();
         $this->actions->wp_init();
         $this->actions->wp_register_ajax_actions();
+        
+        return $this;
+    }
+
+    private function load_hooks()
+    {
+        $this->hooks = new FastAdminHooks();
+        $this->hooks->wp_init();
         
         return $this;
     }
