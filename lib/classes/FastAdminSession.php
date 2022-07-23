@@ -42,6 +42,14 @@ class FastAdminSession extends FastAdminCore
     {
         return isset($_SESSION[$key]) ? $_SESSION[$key] : $default;
     }
+
+    /**
+     * Retrive all session information
+     */
+    public function all()
+    {
+        return $_SESSION;
+    }
     
     /**
      * Return flash value and unset from session after fetch
