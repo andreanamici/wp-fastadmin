@@ -7,6 +7,8 @@ use FastAdmin\lib\classes\FastAdmin;
 /**
  * Core constants
  */
+define('WP_FA_PLUGIN_DIRNAME',basename(__DIR__));
+
 define('WP_FA_BASE_PATH',dirname(__FILE__));
 
 define('WP_FA_BASE_PATH_CLASSES',WP_FA_BASE_PATH.'/lib/classes');

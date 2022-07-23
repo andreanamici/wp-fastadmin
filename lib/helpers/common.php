@@ -112,7 +112,7 @@ if(!function_exists('fa_plugin_url'))
      */
     function fa_plugin_url($url)
     {
-        return plugins_url(WP_FA_PLUGIN_NAME . '/' . $url);
+        return plugins_url(WP_FA_PLUGIN_DIRNAME . '/' . $url);
     }
 }
 
