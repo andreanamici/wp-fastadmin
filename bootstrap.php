@@ -22,11 +22,6 @@ define('WP_FA_BASE_PATH_CONFIGS',WP_FA_BASE_PATH.'/configs');
 define('WP_FA_BASE_PATH_RESOURCES',WP_FA_BASE_PATH.'/resources');
 
 /**
- * Configurations 
- */
-require_once WP_FA_BASE_PATH_CONFIGS. '/config.php';
-    
-/**
  * FastAdmin 
  */
 require_once WP_FA_BASE_PATH_CLASSES . '/FastAdmin.php';
@@ -34,7 +29,6 @@ require_once WP_FA_BASE_PATH_CLASSES . '/FastAdmin.php';
 global $fa;              /*@var $fa FastAdmin*/
 
 $fa = new FastAdmin();
-
 $fa->boot();
 
 return $fa;

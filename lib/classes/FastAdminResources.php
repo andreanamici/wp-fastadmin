@@ -30,7 +30,7 @@ class FastAdminResources extends FastAdminCore
     {
         add_action('admin_menu', array($this, 'admin_menu'));  
                 
-        add_action('wp_loaded', array($this, 'load_shortcuts'));
+        add_action('wp_loaded', array($this, 'load_shortcodes'));
 
         $self  = $this;
         
@@ -185,17 +185,17 @@ class FastAdminResources extends FastAdminCore
     }
     
     /**
-     * Load plugin's shortcuts in wp
+     * Load plugin's shortcode in wp
      * 
      * @return FastAdminResources
      */
-    public function load_shortcuts()
+    public function load_shortcodes()
     {
-        $this->shortcuts = require_once WP_FA_BASE_PATH_CONFIGS . '/shortcuts.php';
+        $this->shortcodes = require_once WP_FA_BASE_PATH_CONFIGS . '/shortcodes.php';
         
-        foreach($this->shortcuts as $name => $shortcut)
+        foreach($this->shortcodes as $name => $shortcode)
         {
-           add_shortcode($name,$shortcut['callable']);
+           add_shortcode($name,$shortcode['callable']);
         }
         
         return $this;

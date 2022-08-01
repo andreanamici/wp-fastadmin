@@ -34,5 +34,5 @@ define("WP_AUTO_UPDATE_CORE",false);
 
 /* Encryption */
 
-define('WP_FA_ENCRYPT_SECRET_KEY', '');
-define('WP_FA_ENCRYPT_SECRET_IV',  '');
+define('WP_FA_ENCRYPT_SECRET_KEY', getenv('WP_FA_ENCRYPT_SECRET_KEY'));
+define('WP_FA_ENCRYPT_SECRET_IV',  getenv('WP_FA_ENCRYPT_SECRET_IV'));

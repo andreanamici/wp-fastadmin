@@ -1,0 +1,18 @@
+
+## FastAdmin ##
+#
+# @author Andrea Namici, mailto: andrea.namici@gmail.com
+
+This plugin allow you to create quickly custom WP administration area, custom software, plugin, shortcodes or ever you have need in WordPress.
+
+Main functionality like flash messages are injected into wp admin messages.
+
+# requirements:
+
+- create .env file in main plugin folder
+- configure configs file in configs/*.php
+
+- enjoy :-)
+
+
+

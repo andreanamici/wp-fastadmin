@@ -1,3 +1,5 @@
-<!-- FA FLASH MESSAGE -->
-<div class="fa-messages <?php echo $message['type'];?>"><?php echo $message['text'];?></div>
+<!-- WP FA FLASH MESSAGE -->
+<div class="notice notice-<?php echo $message['type'];?> is-dismissible">
+    <p><?php echo $message['text'];?></p>
+</div>
 <!-- END -->

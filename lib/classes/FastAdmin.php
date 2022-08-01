@@ -105,6 +105,8 @@ class FastAdmin extends FastAdminCore
      */
     public function boot()
     {
+        $this->load_config();
+
         add_action('init', array($this, 'wp_init'), 1);
                 
         add_action('wp_loaded', array($this, 'run'),100);
@@ -186,7 +188,23 @@ class FastAdmin extends FastAdminCore
              ->load_cron()
         ;
     }
+     
+    private function load_config()
+    {
+        $envFile = WP_FA_BASE_PATH.'/.env';
         
+        if(!file_exist($envFile)){
+            wp_die('Wp Fastadmin: env file not found in '.$envFile);
+        }
+
+        $this->dotenv = new FastAdminDotEnv($envFile);
+        $this->dotenv->load();
+
+        require_once WP_FA_BASE_PATH_CONFIGS. '/config.php';
+
+        return $this;
+    }       
+
     /**
      * Load assets
      * 
