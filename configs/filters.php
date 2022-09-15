@@ -8,7 +8,7 @@ return array(
     'message' => array(
         'name'     => 'the_content',
         'callable' => function( $content ) {
-                if(stristr('[fa_message]',$content) === false)
+                if($content && stristr('[fa_message]',$content) === false)
                 {
                     $content = fa_message_get(). ' '.$content;
                 }
