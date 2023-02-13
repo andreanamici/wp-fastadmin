@@ -112,6 +112,10 @@ if(!function_exists('fa_plugin_url'))
      */
     function fa_plugin_url($url)
     {
+        if(strstr(__DIR__, 'wp-content/themes')){
+            return get_template_directory_uri()  .'/'. WP_FA_PLUGIN_DIRNAME . '/' . $url;
+        }
+
         return plugins_url(WP_FA_PLUGIN_DIRNAME . '/' . $url);
     }
 }
