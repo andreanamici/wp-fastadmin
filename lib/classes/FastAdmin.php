@@ -193,7 +193,7 @@ class FastAdmin extends FastAdminCore
     {
         $envFile = WP_FA_BASE_PATH.'/.env';
         
-        if(!file_exist($envFile)){
+        if(!file_exists($envFile)){
             wp_die('Wp Fastadmin: env file not found in '.$envFile);
         }
 
