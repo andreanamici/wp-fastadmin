@@ -9,7 +9,7 @@ class FastAdminSession extends FastAdminCore
     public function wp_init()
     {
         $this->_session_start();
-        
+
         add_action('wp_logout', array($this,'_session_destroy'),1);
         
         add_action('wp_login', array($this,'_session_destroy'),1);
@@ -80,13 +80,25 @@ class FastAdminSession extends FastAdminCore
        $_SESSION[self::FLASH_KEY_NAME][$key] = $value;
        return $this;
     }
+
+    /**
+     * Check if exists flash value
+     * 
+     * @param string $key       key to fetch
+     * 
+     * @return mixed
+     */
+    public function flash_has($key)
+    {
+        return isset($_SESSION[self::FLASH_KEY_NAME][$key]);
+    }
     
     /**
      * Start a session data for plugin
      */
-    protected function _session_start()
+    public function _session_start()
     {
-        @session_name(WP_FA_SESSION_NAME);
+        // @session_name(WP_FA_SESSION_NAME);
         if(!session_id()) {
            @session_start();
         }
@@ -96,7 +108,7 @@ class FastAdminSession extends FastAdminCore
     /**
      * Destroy session registered
      */
-    protected function _session_destroy()
+    public function _session_destroy()
     {
         @session_destroy();
         @setcookie(WP_FA_SESSION_NAME, '', time(), '/');

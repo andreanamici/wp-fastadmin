@@ -4,7 +4,16 @@
    <?php break;
    case 'select': ?>
         <select <?php echo $field['attrs_string'];?>>
-            <?php foreach($field['options'] as $value => $text) { ?><option value="<?php echo $value;?>" <?php echo $field['selected'] == $value ? 'selected' : '';?>><?php echo $text;?></option><?php } ?>
+            <?php foreach($field['options'] as $key => $value) { ?>
+               <?php if(is_array($value)){ ?>
+                    <optgroup label="<?php echo $value['label'];?>">
+                    <?php foreach($value['options'] as $key => $value) { ?>
+                         <option value="<?php echo $key;?>" <?php echo $field['selected'] == $key ? 'selected' : '';?>><?php echo $value;?></option>
+                    <?php } ?>
+               <?php } else { ?>
+                    <option value="<?php echo $key;?>" <?php echo $field['selected'] == $key ? 'selected' : '';?>><?php echo $value;?></option>
+               <?php } ?>
+            <?php } ?>
         </select>
    <?php break;
    case 'radio': ?>

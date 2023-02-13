@@ -24,6 +24,14 @@ if(!function_exists('fa_message_get'))
     }
 }
 
+if(!function_exists('fa_message_has'))
+{
+    function fa_message_has()
+    {
+        return fa_get('session')->flash_has('message');
+    }
+}
+
 if(!function_exists('fa_message_set'))
 {
     function fa_message_set($type, $text)

@@ -1,19 +1,157 @@
-.fa-messages
+.fa_rowered_outer input::-webkit-outer-spin-button,
+.fa_rowered_outer input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.fa_rowered_outer input[type=number] {
+  -moz-appearance: textfield;
+}
+/* inputs */
+.fa_rowered .fa-input-very-small,
+.fa_rowered .fa-input-small,
+.fa_rowered .fa-input-medium,
+.fa_rowered .fa-input-long
+{
+    width: 100% !important;
+    border: 1px solid #ccc;
+    height: 40px;
+    display: inline-block;
+	border-radius: 7px;
+}
+
+.fa_rowered .fa-input-inline
+{
+    display: inline-block;
+    margin: 0px 20px 0px 0px;
+}
+
+.fa-messages,.notice
 {
     display: block;
     width: 100%;
-    height: 50px;
-    padding: 12px;
+    border-radius: 10px;
+    padding: 20px;
     margin: 0px 0px 10px 0px;
 }
 
-.fa-messages.success
+.fa-wrapping-form  button.ms-choice {
+    height: 40px;
+    border: 0;
+    background: transparent;
+}
+
+.fa-wrapping-form   .ms-choice>span {
+	top: 6px;
+}
+
+.notice p {
+	margin: 0
+}
+
+p.user-data-disclamer {
+    background: #feffe1;
+    border-radius: 10px;
+    border: 1px solid #ffffff;
+    color: #000000;
+    text-align: center;
+    padding: 15pt;
+}
+
+.fa-messages.success, .notice.notice-success
 {
     background-color: #009300;
     color: #fff;
 }
 
-.fa-messages.warning
+.fa-messages.notice, .notice.notice-info
+{
+    border: 1px solid #dedede;
+}
+
+.fa-messages.warning, .notice.notice-warning
 {
     background-color: #f7e381;
+}
+
+.fa-messages.warning, .notice.notice-error
+{
+    background-color: rgb(250, 79, 79);
+}
+
+.fa-messages.warning p, .notice.notice-error p
+{
+    color: #fff;
+}
+
+.form-table th {
+    width: 200pt;
+    padding: 5pt;
+}
+
+.fa-wrapping-form {
+    padding: 30px;
+    border-radius: 10px;
+    background: #fff;
+    margin-bottom: 10px;
+    border: 1px solid #f4f4f4;
+    box-shadow: 0 10px 20px rgb(0 0 0 / 12%);
+}
+
+.fa-wrapping-form label {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.fa-wrapping-form h2, .fa-wrapping-form .h2 {
+    font-size: 1.6rem;
+}
+
+.fa_rowered_inner {
+    flex: 1;
+}
+
+.fa_rowered_outer {
+    flex: 2;
+}
+
+.fa_rowered {
+	margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+@media screen and (max-width: 768px) {
+	.fa_rowered {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	.fa_rowered_inner {
+		flex: 1;
+		width: 100%;
+	}
+
+	.fa_rowered_outer {
+		flex: 1;
+		width: 100%;
+	}
+
+}
+
+label.fa-sublabel {
+    font-weight: normal;
+    display: block;
+}
+
+.ui-datepicker-title {
+    display: flex;
+}
+
+.fa-form h2{
+    border-bottom: 1px solid #dedede;
+}
+
+.fa-form label.required:after {
+    content: "*";
+    color: red;
 }

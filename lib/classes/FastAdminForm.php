@@ -116,6 +116,31 @@ class FastAdminForm extends FastAdminFormValidation
     }
     
     /**
+     * Get field from form
+     * @var string $name name of field
+     * @return array
+     */
+    public function get_field($name)
+    {
+        if(!$this->form['rows']){
+            return null;
+        }
+
+        foreach($this->form['rows'] as $row){
+            if(empty($row['fields'])){
+                continue;
+            }
+            foreach($row['fields'] as $fieldname => $field){
+                if($fieldname == $name){
+                    return $field;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Add a row to form
      * 
      * @param string $name          row input name
@@ -184,6 +209,31 @@ class FastAdminForm extends FastAdminFormValidation
         
         $this->form['rows'][$rowname]['fields'][$name] = $field;
         return $this;
+    }
+    
+    /**
+     * Remove a field from form
+     * @var string $name field anme
+     * @return bool
+     */
+    public function remove_field($name)
+    {
+        if(!$this->get_field($name)){
+            return false;
+        }
+
+        foreach($this->form['rows'] as &$row){
+            if(empty($row['fields'])){
+                continue;
+            }
+            foreach($row['fields'] as $fieldname => $field){
+                if($fieldname == $name){
+                    unset($row['fields'][$fieldname]);
+                }
+            }
+        }
+
+        return true;
     }
     
     /**
@@ -261,7 +311,7 @@ class FastAdminForm extends FastAdminFormValidation
         return $this->form['method'] == $_SERVER['REQUEST_METHOD'] || array_key_exists('submit', $this->data);
     }
     
-    /**
+     /**
      * Return form submitted and validated data
      * 
      * @param string $field     field to search, default all
@@ -272,7 +322,38 @@ class FastAdminForm extends FastAdminFormValidation
     public function get_data($field = null, $default = null)
     {
         $data = parent::get_data($field, $default);
+
+        if(!$data){
+            return $data;
+        }
+
+        if($field){
+            return $this->parse_model_data($field, $data);
+        }
+
+        foreach($data as $fieldname => $value){
+            $this->parse_model_data($fieldname, $value);
+        }
+
         return $data;
+    }
+
+    /**
+     * Process data for field model_value attribute
+     * 
+     * @param string $fieldname field name
+     * @param string $value     field current value
+     * 
+     * @return mixed
+     */
+    protected function parse_model_data($fieldname, $value)
+    {
+        $field = $this->get_field($fieldname);
+        if(!empty($field['model_value']) && is_callable($field['model_value'])){
+            return call_user_func_array($field['model_value'], [$value]);
+        }
+
+        return $value;
     }
     
     /**
@@ -297,23 +378,7 @@ class FastAdminForm extends FastAdminFormValidation
             if(!empty($row['fields']))
             {
                 foreach($row['fields'] as $fieldname => $field)
-                {
-                    $field['label'] = isset($field['label']) ? $field['label'] : array();
-                    
-                    if($field['label'])
-                    {
-                        if(is_string($field['label']))
-                        {
-                            $field['label'] = array('content' => $field['label']);
-                        }
-                        
-                        $label_attrs        = isset($field['label']['attrs']) ? $field['label']['attrs'] : array();
-                        $label_attrs['for'] = isset($label_attrs['for']) ? $label_attrs['for'] : $field['attrs']['id'];
-                        
-                        $field['label']['attrs']        = $label_attrs;
-                        $field['label']['attrs_string'] = fa_form_parse_attributes($label_attrs);
-                    }
-                    
+                {                    
                     $field['errors']           = fa_form_error($fieldname,true);
                     $field['template']         = $field_template;
                     
@@ -338,24 +403,66 @@ class FastAdminForm extends FastAdminFormValidation
                     }
                     
                     $field_attrs['value'] = fa_form_data($fieldname, $this->get_data($fieldname,$this->get_initial_data($fieldname)), true);
+
+                    if(isset($field['value']) && !$this->is_submitted()){
+                        $field_attrs['value'] = $field['value'];
+                    }
+
+                    $field['label'] = isset($field['label']) ? $field['label'] : array();
+                    
+                    if($field['label'])
+                    {
+                        if(is_string($field['label']))
+                        {
+                            $field['label'] = array('content' => $field['label']);
+                        }
+                        
+                        $label_attrs        = isset($field['label']['attrs']) ? $field['label']['attrs'] : array();
+                        $label_attrs['for'] = isset($label_attrs['for']) ? $label_attrs['for'] : $field['attrs']['id'];
+                        
+                        if(!empty($field_attrs['required'])){
+                            $label_class = !empty($label_attrs['class']) ? $label_attrs['class'] : ''; 
+                            $label_attrs['class'] = ($label_class ? $label_class . ' ' : ''). 'required';
+                        }
+
+                        $field['label']['attrs']        = $label_attrs;
+                        $field['label']['attrs_string'] = fa_form_parse_attributes($label_attrs);
+                        
+                    }
+
                     $field['selected']    = null;
                     
                     if(!empty($field['options']) && in_array($field['type'], array('select','radio')))
                     {
-                        foreach($field['options'] as $key => $text)
+                        $label_option_attr = !empty($field['label_option_attrs']) ? $field['label_option_attrs'] : array();
+                        $field['label_option_attrs_string'] = fa_form_parse_attributes($label_option_attr);
+
+                        foreach($field['options'] as $key => $value)
                         {
-                            $label_option_attr = !empty($field['label_option_attrs']) ? $field['label_option_attrs'] : array();
-                            $field['label_option_attrs_string'] = fa_form_parse_attributes($label_option_attr);
-                            
-                            if((!isset($field_attrs['value']) || isset($field_attrs['value']) && $field_attrs['value'] == '') && isset($field['default_value']) && $field['default_value'] == $key){
-                                $field['selected'] = $key;
-                            }else if($field_attrs['value'] == $key){
-                                $field['selected'] = $key;
+                            if(is_array($value) && isset($value['options'])){
+                                foreach($value['options'] as $k => $v){
+                                    if((!isset($field_attrs['value']) || isset($field_attrs['value']) && $field_attrs['value'] == '') && isset($field['default_value']) && $field['default_value'] == $k){
+                                        $field['selected'] = $k;
+                                    }else if($field_attrs['value'] == $k){
+                                        $field['selected'] = $k;
+                                    }
+                                }
+                            } else{
+                                
+                                if((!isset($field_attrs['value']) || isset($field_attrs['value']) && $field_attrs['value'] == '') && isset($field['default_value']) && $field['default_value'] == $key){
+                                    $field['selected'] = $key;
+                                }else if($field_attrs['value'] == $key){
+                                    $field['selected'] = $key;
+                                }
                             }
                         }                        
                     }
-                    
+
                     $field['value'] =  $field_attrs['value'];
+
+                    if($field['attrs']['type'] == 'checkbox' && $this->get_data($fieldname,$this->get_initial_data($fieldname)) != '0'){
+                        $field_attrs['checked'] = true;
+                    }
 
                     if($field['attrs']['type'] == 'textarea' || in_array($field['type'], array('select','radio'))){
                         unset($field_attrs['value']);
@@ -369,6 +476,10 @@ class FastAdminForm extends FastAdminFormValidation
                     if(!empty($field['after']) && is_callable($field['after']))
                     {
                         $field['after'] = call_user_func_array($field['after'], array($this));
+                    }
+
+                    if(!empty($field['form_value']) && is_callable($field['form_value'])){
+                        $field_attrs['value'] = call_user_func_array($field['form_value'], [$field_attrs['value']]);
                     }
                     
                     $field['attrs_string']     = fa_form_parse_attributes($field_attrs);
@@ -387,7 +498,7 @@ class FastAdminForm extends FastAdminFormValidation
             $action['attrs'] = array_merge($action_attrs, array(
                 'type'   => $action['type'],
                 'name'   => $name,
-                'class'  => 'button '.($action['type'] == 'submit' ? 'button-primary' : 'button-secondary'),
+                'class'  => 'btn button '.($action['type'] == 'submit' ? 'btn-primary' : 'btn-secondary'),
                 'value'  => isset($action['value']) ? $action['value'] : $action['content']
             ));
             
@@ -399,5 +510,5 @@ class FastAdminForm extends FastAdminFormValidation
                     'form'              => $this->form,
                     'errors'            => $this->errors
                ));
-    }    
+    } 
 }

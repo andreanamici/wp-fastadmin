@@ -1,0 +1,1 @@
+$.fn.multipleSelect.locales["it-IT"]={formatSelectAll:()=>"[Seleziona tutti]",formatAllSelected:()=>"Tutti selezionati",formatCountSelected:(e,t)=>e+" di "+t+" selezionati",formatNoMatchesFound:()=>"Nessun risultato"},$.extend($.fn.multipleSelect.defaults,$.fn.multipleSelect.locales["it-IT"]);

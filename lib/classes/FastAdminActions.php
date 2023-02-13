@@ -263,18 +263,26 @@ class FastAdminActions extends FastAdminCore
     {
         $breadcrumb = array();
         
+        if($this->layout == 'admin'){
+            $breadcrumb[] = array(
+                'title' => get_bloginfo(),
+                'url'   => get_admin_url()
+            );
+        }
+
         foreach($crumbs as $crumb)
         {
            $crumb = is_array($crumb) ? $crumb : array('page' => $crumb);
            $crumb['parameters'] = isset($crumb['parameters']) ? $crumb['parameters'] : array();
-           $page = fa_get_resources()->get_page($crumb['page']);
+           $page = isset($crumb['page']) ? fa_get_resources()->get_page($crumb['page']) : null;
            
            if(!$page)
            {
-               wp_die('Cannot use this crumb value: '.$page);
+               //wp_die('Cannot use this crumb value: '.$page);
+               continue;
            }
            
-           $breadcrumb[] = array('title' => $page['page_title'], 'url' => fa_action_path($crumb['page'], $crumb['parameters']));
+           $breadcrumb[] = array('title' => isset($crumb['title']) ? $crumb['title'] : $page['page_title'], 'url' =>  isset($crumb['url']) ? $crumb['url'] : fa_action_path($crumb['page'], $crumb['parameters']));
         }
         
         $title = $title ? $title : $this->page_info['page_title'];

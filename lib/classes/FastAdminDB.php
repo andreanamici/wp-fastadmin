@@ -50,6 +50,12 @@ class FastAdminDB extends FastAdminCore
         return $this->wpdb->prefix . $table;
     }
     
+
+    public function get_table_prefix()
+    {
+        return $this->wpdb->prefix;
+    }
+    
     public function get_table_columns($table)
     {
         return  $this->wpdb->get_col("DESC {$table}", 0);

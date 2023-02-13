@@ -1,5 +1,13 @@
 <?php
 
+if(!defined("INPUT_REQUEST")){
+    define("INPUT_REQUEST", 3);
+}
+
+if(!defined("INPUT_SESSION")){
+    define("INPUT_SESSION", 6);
+}
+
 if(!function_exists('fa_input_fetch'))
 {
     /**
@@ -20,11 +28,11 @@ if(!function_exists('fa_input_fetch'))
        {
            case INPUT_POST:     $global = $_POST;break;
            case INPUT_GET:      $global = $_GET;break;
-           case INPUT_REQUEST:  $global = $_REQUEST;break;
            case INPUT_COOKIE:   $global = $_COOKIE;break;
+           case INPUT_REQUEST:  $global = $_REQUEST;break;
+           case INPUT_ENV:      $global = $_ENV;break;
            case INPUT_SERVER:   $global = $_SERVER;break;
            case INPUT_SESSION:  $global = $_SESSION;break;
-           case INPUT_ENV:      $global = $_ENV;break;
        }
 
        if($xss_filter)

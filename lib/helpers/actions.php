@@ -26,9 +26,12 @@ if(!function_exists('fa_action_callable'))
                     $parameters = array();
                     $obj        = null;
                     
-                    if($data && !is_array($data))
-                    {
+                    if($data && !is_array($data)){
                         $parameters = array($data);
+                    }
+
+                    if(!$params){
+                        $parameters = func_get_args(); 
                     }
 
                     if(function_exists($name))
@@ -36,7 +39,7 @@ if(!function_exists('fa_action_callable'))
                         $parameters = array_merge($parameters, $action ? array($action) + $params : $params);
                     }
                     else if(class_exists($name))
-                    {                        
+                    {       
                         $obj = new $name();
                      
                         if($obj instanceof FastAdmin\lib\classes\FastAdminActions)

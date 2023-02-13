@@ -127,6 +127,8 @@ class FastAdminListTable extends \WP_List_Table
      */
     protected $export_filename = 'export-data';
 
+    protected $display_tfoot = true;
+
     /**
      * Callable callend on each row of table
      * 
@@ -171,10 +173,11 @@ class FastAdminListTable extends \WP_List_Table
             $this->nonce_field = $args['nonce_field'];
         }
         
-        $this->per_page = isset($args['per_page']) ? $args['per_page'] : self::DEFAULT_ROWS_PER_PAGE;
+        $this->per_page  = isset($args['per_page']) ? $args['per_page']   : self::DEFAULT_ROWS_PER_PAGE;
+        $this->paged     = isset($_GET['paged'])     ? $_GET['paged']     : null;
         
-        $this->paged   = isset($_GET['paged'])     ? $_GET['paged']   : null;
-        
+        $this->display_tfoot = isset($args['display_tfoot']) ? $args['display_tfoot'] : $this->display_tfoot;
+
         $this->export_csv      = isset($args['export_csv']) ? $args['export_csv'] : $this->export_csv;
 
         $this->export_filename = isset($args['export_filename']) ? $args['export_filename'] : $this->export_filename;
@@ -203,13 +206,13 @@ class FastAdminListTable extends \WP_List_Table
         return $this->total_items;
     }
     
-    public function get_rows()
+    public function get_rows($exporting = false)
     {
         if(empty($this->rows) && $this->model)
         {                 
             $this->rows = $this->model->get_list_table_data('select',array(
                 'where'     => $this->_get_filters_values(),
-                'fields'    => $this->get_columns_fields(),
+                'fields'    => $this->get_columns_fields($exporting),
                 'join'      => $this->join,
                 'groupby'   => $this->groupby,
                 'having'    => $this->having,
@@ -235,7 +238,7 @@ class FastAdminListTable extends \WP_List_Table
         return $columns;
     }
     
-    public function get_columns_fields()
+    public function get_columns_fields($exporting = false)
     {
         $fields = array();
         
@@ -248,6 +251,10 @@ class FastAdminListTable extends \WP_List_Table
         {
             $fieldname = !empty($column['fieldname']) ? (stristr($column['fieldname'],' as ') === false ? $column['fieldname'].' as '.$name : $column['fieldname']) : $name;
             
+            if($exporting && !empty($column['fieldname_export'])){
+                $fieldname = stristr($column['fieldname_export'],' as ') === false ? $column['fieldname_export'].' as '.$name : $column['fieldname_export'];
+            }
+
             if($fieldname != self::COLUMN_ACTIONS)
             {
                 $fields[] = $fieldname;
@@ -472,6 +479,7 @@ class FastAdminListTable extends \WP_List_Table
         }
 
         $modifier_export = isset($column['modifier_export']) ? $column['modifier_export'] : false;
+       
         if($modifier_export && $exporting)
         {
             return call_user_func_array($column['modifier_export'], array($value, $item));
@@ -484,7 +492,7 @@ class FastAdminListTable extends \WP_List_Table
         
         $actions  = !empty($column['actions']) ? $column['actions'] : array();
         
-        if(!empty($actions))
+        if(!empty($actions) && !$exporting)
         {
             $actions = is_callable($actions) ? call_user_func_array($actions, array($item, $column_name)) : (is_array($actions) ? $actions : null);
             
@@ -503,17 +511,21 @@ class FastAdminListTable extends \WP_List_Table
         $hidden   = $this->get_columns_hidden();
         $sortable = $this->get_columns_sortable();
         	    
-        $per_page = $this->get_items_per_page('fa_list_per_page', $this->per_page);
-        
+        $this->per_page    = $this->get_items_per_page('fa_list_per_page', $this->per_page);
         $this->total_items = $this->get_count_rows();
         
         $this->set_pagination_args( array(
             'total_items' => $this->total_items,                  
             'per_page'    => $this->per_page                   
         ));
+          
+        if($this->export_csv && isset($_GET['export_csv']) && $_GET['export_csv'] == 'true')
+        {
+            return $this->export_csv();
+        }
         
         $this->items  = $this->get_rows();
-  
+        
         if($this->items)
         {
             if($this->filters && !isset($this->columns[self::COLUMN_ACTIONS]))
@@ -536,12 +548,7 @@ class FastAdminListTable extends \WP_List_Table
             }
         } 
         
-        $this->_column_headers = array($columns, $hidden, $sortable);        
-
-        if($this->export_csv && isset($_GET['export_csv']) && $_GET['export_csv'] == 'true')
-        {
-            return $this->export_csv();
-        }
+        $this->_column_headers = array($columns, $hidden, $sortable);
     }
 
     /**
@@ -551,21 +558,44 @@ class FastAdminListTable extends \WP_List_Table
      */
     protected function get_items_exportable()
     {
-        $this->per_page = null;
-        $this->paged    = false;
-
         $this->rows     = array();
-        $items          = $this->get_rows();
+        $items          = $this->get_rows(true);
 
         foreach($items as $key => $item)
         {
+            $original_item = $item;
             foreach($item as $column_name => $value)
             {
-                $items[$key][$column_name]  = $this->column_default($item,$column_name, true);
+                $exportable = !isset($this->columns[$column_name]['exportable']) ? true : $this->columns[$column_name]['exportable'];
+                if($exportable){
+                    $items[$key][$column_name]  = $this->column_default($original_item,$column_name, true);
+                }else{
+                    unset($items[$key][$column_name]);
+                }
             }
         }
 
         return $items;
+    }
+
+    protected function download_send_headers($filename, $contentType) 
+    {
+        ob_end_clean();
+       
+        // disable caching
+        $now = gmdate("D, d M Y H:i:s");
+        header("Expires: Tue, 03 Jul 2001 06:00:00 GMT");
+        header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
+        header("Last-Modified: {$now} GMT");
+    
+        // force download  
+        header("Content-Type: ".$contentType);
+    
+        // disposition / encoding on response body
+        header("Content-Disposition: attachment;filename={$filename}");
+        // header("Content-Transfer-Encoding: binary");
+
+        return $this;
     }
 
     /**
@@ -573,40 +603,36 @@ class FastAdminListTable extends \WP_List_Table
      */
     protected function export_csv()
     {        
-        $items = $this->get_items_exportable();
+        $this->download_send_headers($this->export_filename.".csv", "text/csv");
 
-        ob_get_clean();
-
-        // disable caching
-        $now = gmdate("D, d M Y H:i:s");
-        header("Expires: Tue, 03 Jul 2001 06:00:00 GMT");
-        header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
-        header("Last-Modified: {$now} GMT");
-        
-        // force download  
-        header("Content-Type: text/plain");
-
-        // disposition / encoding on response body
-        header("Content-Disposition: attachment;filename=\"".$this->export_filename.".csv\"");
-        
-        $df = fopen("php://output", 'w');
+        $df = fopen("php://output", 'wb');
         
         //csv heaeder
-        $first_item     = reset($items);
-        $export_columns = array_keys($first_item);
-
-        foreach($export_columns as $key => $export_column){
-            $export_columns[$key] = isset($this->columns[$export_column]['export_title']) ? $this->columns[$export_column]['export_title'] : $this->columns[$export_column]['title'];
-        }
-
-        fputcsv($df, $export_columns);
-
-        foreach ($items as $item) {
-            fputcsv($df, $item);
+        $export_columns = [];
+        foreach($this->columns as $key => $column){
+            $exportable = isset($column['exportable']) ? $column['exportable'] : true;
+            if($exportable){
+                $export_columns[$key] = isset($column['export_title']) ? $column['export_title'] : $column['title'];
+            }
         }
         
+        fputcsv($df, $export_columns);
+
+        $this->paged     = null;
+        $this->per_page  = 1000;
+
+        while($items = $this->get_items_exportable())
+        {
+            $this->paged++;
+
+            foreach ($items as $item) {
+                fputcsv($df, $item);
+                ob_flush();
+                flush();
+            }
+        }   
+
         fclose($df);
-        ob_get_clean();
         exit;
     }
     
@@ -691,7 +717,37 @@ class FastAdminListTable extends \WP_List_Table
             <?php foreach($_GET as $field => $value){ if($field != self::FILTERS_INPUT_NAME){ ?>
                 <input type='hidden' name='<?php echo $field;?>' value='<?php echo $value;?>' />
             <?php } } ?>
-            <?php parent::display(); ?>
+            <?php
+
+            $singular = $this->_args['singular'];
+            $this->display_tablenav( 'top' );
+            $this->screen->render_screen_reader_content( 'heading_list' );
+
+            ?>
+            <table class="wp-list-table <?php echo implode( ' ', $this->get_table_classes() ); ?>">
+                <thead>
+                    <tr>
+                        <?php $this->print_column_headers(); ?>
+                    </tr>
+                </thead>
+                <tbody id="the-list"
+                    <?php
+                    if ( $singular ) {
+                        echo " data-wp-lists='list:$singular'";
+                    }
+                    ?>
+                    >
+                    <?php $this->display_rows_or_placeholder(); ?>
+                </tbody>
+                <?php if($this->display_tfoot){ ?>
+                <tfoot>
+                    <tr>
+                        <?php $this->print_column_headers( false ); ?>
+                    </tr>
+                </tfoot>
+                <?php } ?>
+            </table>
+            <?php $this->display_tablenav( 'bottom' );?>
         </form>
         <?php
     }

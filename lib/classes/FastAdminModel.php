@@ -198,13 +198,18 @@ class FastAdminModel extends FastAdminDB
      * Get a record from database
      * 
      * @param mixed $id pk value
-     * 
+     * @param mixed $orderby orderby array field => value
      * @return array
      */
-    public function get_record_by(array $where)
+    public function get_record_by(array $where, $orderby = NULL)
     {
-        $where  = $this->_build_sql_where($where);
-        $record = $this->wpdb->get_row('SELECT * FROM ' .  $this->table_name.' WHERE 1 '.$where, $this->fetch_mode);
+        $sql = $this->_build_sql(array(
+                'from'       => $this->table_name,
+                'where'      => $where, 
+                'orderby'    => $orderby, 
+        ));
+
+        $record = $this->wpdb->get_row($sql, $this->fetch_mode);
         return  $this->_post_get_record($record);
     }
     
@@ -262,7 +267,7 @@ class FastAdminModel extends FastAdminDB
                                        'having'     => $having
                ));
 
-               $records    = $this->wpdb->get_results($sql, $this->fetch_mode);
+        $records    = $this->wpdb->get_results($sql, $this->fetch_mode);
         
         if(!empty($records))
         {
@@ -308,13 +313,13 @@ class FastAdminModel extends FastAdminDB
      */
     public function get_count_records_by(array $where, $join = null, $groupby = null, $having = null)
     {
-         $sql = $this->_build_sql(array('fields'     => 'COALESCE(COUNT(*),0) as tot',
+        $sql = $this->_build_sql(array('fields'     => 'COALESCE(COUNT(*),0) as tot',
                                         'from'       => $this->table_name,
                                         'where'      => $where,
                                         'join'       => $join, 
                                         'groupby'    => $groupby,
                                         'having'     => $having
-                ));
+               ));
 
         $result  = $this->wpdb->get_row($sql, $this->fetch_mode);
         return (int) $result['tot'];
@@ -365,6 +370,11 @@ class FastAdminModel extends FastAdminDB
         $data        = $this->filter_data_by_table($this->table_name, $data);
         
         $res         = $this->wpdb->insert($this->table_name, $data);
+        
+        if($this->wpdb->last_error !== ''){
+            wp_die($this->wpdb->last_error);
+        }
+        
         $id          = $res ? $this->wpdb->insert_id : null;    
         
         return $id;
@@ -384,9 +394,19 @@ class FastAdminModel extends FastAdminDB
         {
             $data[$this->field_updating] = fa_date_now();
         }
+
+        if(!$where){
+            $where = array($this->field_id => $id);
+        }
         
         $data  = $this->filter_data_by_table($this->table_name, $data);
-        return $this->wpdb->update($this->table_name, $data, array($this->field_id => $id));
+        $res = $this->wpdb->update($this->table_name, $data, $where);
+
+        if($this->wpdb->last_error !== ''){
+            wp_die($this->wpdb->print_error());
+        }
+    
+        return $res;
     }
     
     /**
@@ -404,7 +424,13 @@ class FastAdminModel extends FastAdminDB
         
         if(!$this->field_deleted)
         {
-            return $this->wpdb->delete($this->table_name, $where);
+            $res = $this->wpdb->delete($this->table_name, $where);
+            
+            if($this->wpdb->last_error !== ''){
+                wp_die($this->wpdb->print_error());
+            }
+
+            return $res;
         }
         
         return $this->update($id, array($this->field_deleted => fa_date_now()));
@@ -449,6 +475,4 @@ class FastAdminModel extends FastAdminDB
     {
         return $record;
     }
-    
-    
 }

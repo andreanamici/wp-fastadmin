@@ -1,10 +1,13 @@
-<tr <?php echo $row['attrs_string'];?>>
+<div class="fa_rowered" <?php echo $row['attrs_string'];?>>
     <?php if(!empty($field['label'])){ ?>
-        <th>
-            <label <?php echo $field['label']['attrs_string'];?>><?php echo $field['label']['content'];?></label>
-        </th>
+        <div  class="fa_rowered_inner">
+            <label <?php echo $field['label']['attrs_string'];?>>
+				<?php echo $field['label']['content'];?>
+				<?php /*echo $field['rules'][0] == 'required' ? '<span style="color:red">*</span>' : ''; */?>
+			</label>
+        </div>
     <?php } ?>
-    <td>
+    <div class="fa_rowered_outer">
         <?php 
         echo !empty($field['before']) ? $field['before'] : '';
         
@@ -14,5 +17,5 @@
         
         echo $field['errors'];
         ?>
-    </td>
-</tr>
+    </div>
+</div>
