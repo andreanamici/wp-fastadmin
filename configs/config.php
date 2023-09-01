@@ -4,6 +4,8 @@ define("WP_FA_PLUGIN_NAME",'wp-fastadmin');
 
 define("WP_FA_SESSION_NAME", "wp_fa_admin");
 
+define("WP_FA_SESSION_DOMAIN", $_SERVER['SERVER_NAME']);
+
 define("WP_FA_LANGUAGES_DOMAIN", "fa");
 
 define("WP_FA_PAGES_SLUG_PREFIX","fa_");

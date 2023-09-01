@@ -2,11 +2,15 @@
 
 namespace FastAdmin\lib\classes;
 
+use FastAdmin\lib\traits\FastAdminContainer;
+
 /**
  * Class for actions
  */
 class FastAdminActions extends FastAdminCore
 {
+    use FastAdminContainer;
+    
     /**
      * Model of FastAdmin
      * 
@@ -184,6 +188,18 @@ class FastAdminActions extends FastAdminCore
         return  $return ? fa_resource_render($this->layout.'/' .$view, $data) : fa_resource_include($this->layout.'/'. $view, $data);
     }
     
+    /**
+     * Render shortcode and return HTML as string
+     * 
+     * @param string $view      view path from resources dir
+     * @param array  $data      data to set for views, default array()
+     * 
+     * @return string
+     */
+    public function render_shortcode($view, array $data = array())
+    {
+        return $this->render($view, $data, true);
+    }
     
     /**
      * Send JSON response to browser

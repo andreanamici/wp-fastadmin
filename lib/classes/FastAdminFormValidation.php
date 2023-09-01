@@ -54,18 +54,18 @@ class FastAdminFormValidation extends FastAdminCore
     
     public function __construct()
     {
-        $configs                = include WP_FA_BASE_PATH_CONFIGS.'/form_validation.php';
-        $locale                 = fa_get_locale();
-        
-        $this->data              = isset($configs['default_data'])            ? $configs['default_data']            : array();
-        $this->errors_messages   = isset($configs['rules_messages'][$locale]) ? $configs['rules_messages'][$locale] : $configs['rules_messages'][$configs['default_lang']];
+        $configs                 = include WP_FA_BASE_PATH_CONFIGS.'/form_validation.php';      
+        $data                    = !empty($configs['default_data']) ? $configs['default_data'] : fa_flash_get('form_validation_data', []);  
+
+        $this->data              = $data;
+        $this->errors_messages   = $configs['rules_messages'];
         $this->rules             = isset($configs['rules'])                   ? $configs['rules']                   : array();
         
         $this->before_validation = isset($configs['before_validation'])       ? $configs['before_validation']       : array();
         $this->after_validation  = isset($configs['after_validation'])        ? $configs['after_validation']        : array();
         $this->callback_context  = fa_get('actions');
         $this->rules_data        = array();        
-        $this->errors            = array();        
+        $this->errors            = fa_flash_get('fa_form_errors', []);
     }
     
     
@@ -120,6 +120,36 @@ class FastAdminFormValidation extends FastAdminCore
     public function get_errors($field = null)
     {
         return empty($field) ? $this->errors : (isset($this->errors[$field]) ? $this->errors[$field] : array());
+    }
+
+    public function get_errors_string(){
+        $errors_messages = '';
+        foreach($this->errors as $errors){
+            foreach($errors as $error){
+                $errors_messages.= '<br/> '.$error;
+            }
+        }
+        return $errors_messages;
+    }
+
+    public function set_after_validation($after = null){
+        $this->after_validation = $after;
+        return $this;
+    }
+
+    /**
+     * Set manual form errors
+     * @return FastAdminFormValidation
+     */
+    public function set_errors(array $errors, $setMessage = true)
+    {
+        $this->errors = $errors;
+        
+        if($setMessage){
+            fa_message_set('error', 'Si prega di verificare i dati inseriti prima di procedere');
+        }
+
+        return $this;
     }
     
     /**
@@ -180,11 +210,12 @@ class FastAdminFormValidation extends FastAdminCore
     public function validate(array $data = array())
     {
         $data = !empty($data) ? $data : $this->data;
-                
 //        if(empty($this->rules_data) || empty($data) || empty($this->rules))
 //        {
 //            return false;
 //        }
+
+        fa_flash_set('form_validation_data', $data);
         
         $this->errors = array();
         
@@ -246,6 +277,8 @@ class FastAdminFormValidation extends FastAdminCore
            call_user_func_array($this->after_validation, array($is_valid, $this->errors));
         }
         
+        fa_flash_set('fa_form_errors', $this->errors);
+
         return $is_valid;
     }
     

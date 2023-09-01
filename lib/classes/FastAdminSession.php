@@ -12,7 +12,7 @@ class FastAdminSession extends FastAdminCore
 
         add_action('wp_logout', array($this,'_session_destroy'),1);
         
-        add_action('wp_login', array($this,'_session_destroy'),1);
+        // add_action('wp_login', array($this,'_session_destroy'),1);
     }
         
     
@@ -31,7 +31,7 @@ class FastAdminSession extends FastAdminCore
     }
     
     /**
-     * REtrive a value from session
+     * Retrive a value from session
      * 
      * @param string $key       key
      * @param mixed  $default   default value, default false
@@ -41,6 +41,19 @@ class FastAdminSession extends FastAdminCore
     public function get($key, $default = false)
     {
         return isset($_SESSION[$key]) ? $_SESSION[$key] : $default;
+    }
+
+    /**
+     * Remove a value from session
+     * 
+     * @param string $key       key
+     * 
+     * @return bool
+     */
+    public function remove($key)
+    {
+        unset($_SESSION[$key]);
+        return true;
     }
 
     /**
@@ -98,10 +111,13 @@ class FastAdminSession extends FastAdminCore
      */
     public function _session_start()
     {
-        // @session_name(WP_FA_SESSION_NAME);
+        @session_name(WP_FA_SESSION_NAME);
+        @session_set_cookie_params(0, '/', $_SERVER['SERVER_NAME']);
+        
         if(!session_id()) {
            @session_start();
         }
+
         return $this;
     }
     

@@ -595,3 +595,22 @@ if (!function_exists('fa_date_days_between'))
     }
 
 }
+
+
+if(!function_exists('fa_microtime'))
+{
+    /**
+     * Get microtime
+     * 
+     * @param date   $fromdate              fromdate
+     * @param date   $todate                todate
+     * @param string $date_label_format     array value string,date format
+     * @param string $date_key_format       array key string,date forma
+     * 
+     * @return array
+     */
+    function fa_microtime()
+    {
+        return microtime(true)*10000;
+    }
+}

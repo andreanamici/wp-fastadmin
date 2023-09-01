@@ -67,7 +67,6 @@ class FastAdminModel extends FastAdminDB
         $this->init_model($modelinfo);
     }
     
-    
     public function get_field_id()
     {
         return $this->field_id;
@@ -208,20 +207,17 @@ class FastAdminModel extends FastAdminDB
                 'where'      => $where, 
                 'orderby'    => $orderby, 
         ));
-
         $record = $this->wpdb->get_row($sql, $this->fetch_mode);
-        return  $this->_post_get_record($record);
+        return $this->_post_get_record($record);
     }
     
     /**
      * Get records dropdown
-     * 
+     * @param array $where array of conditions, default []
      * @return array
      */
-    public function get_records_dropdown()
-    {
-       $where = array(); 
-       
+    public function get_records_dropdown($where = [])
+    {       
        if($this->field_deleted)
        {
           $where[$this->field_deleted] = null;
@@ -388,7 +384,7 @@ class FastAdminModel extends FastAdminDB
      * 
      * @return int  number of records updated
      */
-    public function update($id, $data)
+    public function update($id, $data, $where  = [])
     {
         if(!empty($this->field_updating) && empty($data[$this->field_updating]))
         {
@@ -400,6 +396,32 @@ class FastAdminModel extends FastAdminDB
         }
         
         $data  = $this->filter_data_by_table($this->table_name, $data);
+
+        $res = $this->wpdb->update($this->table_name, $data, $where);
+
+        if($this->wpdb->last_error !== ''){
+            wp_die($this->wpdb->print_error());
+        }
+    
+        return $res;
+    }
+
+    /**
+     * Update records by condition
+     * 
+     * @param array  $data          data to update, associative array (column name => value)
+     * 
+     * @return int  number of records updated
+     */
+    public function update_by($data, $where  = [])
+    {
+        if(!empty($this->field_updating) && empty($data[$this->field_updating]))
+        {
+            $data[$this->field_updating] = fa_date_now();
+        }
+        
+        $data  = $this->filter_data_by_table($this->table_name, $data);
+
         $res = $this->wpdb->update($this->table_name, $data, $where);
 
         if($this->wpdb->last_error !== ''){
@@ -435,10 +457,36 @@ class FastAdminModel extends FastAdminDB
         
         return $this->update($id, array($this->field_deleted => fa_date_now()));
     }
+
+     /**
+     * Delete a record  
+     * 
+     * @param array  $where         array of conditions, associative array (column => value)
+     * @param string $table_name    sql table name, default NULL
+     * 
+     * @return int number of records deleted/updated
+     */
+    public function delete_by($where = array())
+    {        
+        if(!$this->field_deleted)
+        {
+            $res = $this->wpdb->delete($this->table_name, $where);
+            
+            if($this->wpdb->last_error !== ''){
+                wp_die($this->wpdb->print_error());
+            }
+
+            return $res;
+        }
+        
+        return $this->update_by(array($this->field_deleted => fa_date_now()));
+    }
     
     
     public function save(array $data)
     {
+        $this->init_model([]);
+
         if(isset($data[$this->field_id]))
         {
             $this->update($data[$this->field_id], $data);

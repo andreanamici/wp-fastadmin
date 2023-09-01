@@ -37,9 +37,39 @@ return array(
         'datetime_future'          => function($value){ return fa_datetime_to_sql($value) && strtotime(fa_datetime_to_sql($value)) > time(); },
         'valid_name'               => function($value){ return preg_match('/^[A-z\s\']+$/', $value); }
     ),
-                
-    'rules_messages' => array(
 
+    // Using translations
+    //
+    // 'rules_messages' =>  array(
+    //     ''                           =>  _f('This field is not valid', 'Form validation'),
+    //     'required'                   =>  _f('This field is required', 'Form validation'),
+    //     'email'                      =>  _f('E-mail is not valid', 'Form validation'),
+    //     'min_length'                 =>  _f('Min length is %2$s characters', 'Form validation'),
+    //     'max_length'                 =>  _f('Max length is %2$s characters', 'Form validation'),
+    //     'greater_than'               =>  _f('Field must be greater than %2$s'),
+    //     'greater_than_field'         =>  _f('Field must be greater or equal than "%3$s"', 'Form validation'),
+    //     'greater_equal_than'         =>  _f('Field must be greater or equal than %2$s', 'Form validation'),
+    //     'greater_equal_than_field'   =>  _f('Field must be greater or equal than "%3$s"', 'Form validation'),
+    //     'less_than'                  =>  _f('Field must be lower than %2$s', 'Form validation'),
+    //     'less_than_field'            =>  _f('Field must be lower than "%3$s"', 'Form validation'),
+    //     'less_equal_than'            =>  _f('Field must be lower or equalt than %2$s', 'Form validation'),
+    //     'less_equal_than_field'      =>  _f('Field must be lower or equalt than "%3$s"', 'Form validation'),
+    //     'number'                     =>  _f('This field must be numeric', 'Form validation'),
+    //     'amount'                     =>  _f('Amunt not valid, separate digits by "."', 'Form validation'),
+    //     'phone'                      =>  _f('Phone number not valid', 'Form validation'),
+    //     'vatnumber'                  =>  _f('Vat number not valid', 'Form validation'),
+    //     'date'                       =>  _f('Date is not valid', 'Form validation'),
+    //     'date_gte_today'             =>  _f('Date must be greater or equal than today', 'Form validation'),
+    //     'date_gt_today'              =>  _f('Date must be greater than today', 'Form validation'),
+    //     'date_range'                 =>  _f('Time interval not valid', 'Form validation'),
+    //     'taxcode'                    =>  _f('Tax code not valid', 'Form validation'),
+    //     'datetime'                   =>  _f('Date time is not valid', 'Form validation'),
+    //     'datetime_future'            =>  _f('Date time must be in the future', 'Form validation'),
+    //     'valid_name'                 =>  _f('Name not valid', 'Form validation'),
+    // )
+
+    'rules_messages' => array(
+            
             'it_IT' => array(
                 ''                           => 'campo non valido',
                 'required'                   => 'Questo campo è obbligatorio',

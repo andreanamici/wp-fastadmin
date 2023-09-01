@@ -199,3 +199,20 @@ if(!function_exists('fa_redirect_with_message'))
         fa_redirect($location, $status);
     }
 }
+
+if(!function_exists('fa_redirect_wp_post_page'))
+{
+    /**
+     * Redirect to wp post page
+     * 
+     * @param mixed  $post     Wp post id or \WP_Post object
+     * @param array  $params   query string parameters, default []
+     * @param string $context  How to output the '&' character. Default '&'
+     * 
+     * @return void
+     */
+    function fa_redirect_wp_post_page($post, array $params = [], $context = '&')
+    {
+        return fa_redirect(add_query_arg($params,get_edit_post_link($post, $context)));
+    }
+}

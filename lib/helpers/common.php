@@ -251,9 +251,13 @@ if(!function_exists('_f'))
      * 
      * @return string
      */
-    function _f($text)
+    function _f($text, $context = null)
     {
-        return translate($text, WP_FA_LANGUAGES_DOMAIN);
+        if($context){
+            return _x($text, $context, WP_FA_LANGUAGES_DOMAIN);
+        }
+
+        return __($text, WP_FA_LANGUAGES_DOMAIN);
     }
 }
 
@@ -263,11 +267,12 @@ if(!function_exists('_ef'))
      * Echo translated text for "WP_FA_LANGUAGES_DOMAIN" textdomain
      * 
      * @param string $text
+     * @param string $context, default null
      * 
+     * @return void
      */
-    function _ef($text)
+    function _ef($text, $context = null)
     {
-
-        echo _f($text);
+        echo _f($text, $context);
     }
 }
