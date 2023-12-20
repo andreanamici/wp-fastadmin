@@ -37,7 +37,7 @@ if(!function_exists('fa_input_fetch'))
 
        if($xss_filter)
        {
-          $global = filter_input_array($type,FILTER_SANITIZE_STRING);
+          $global = filter_var_array($global,FILTER_SANITIZE_SPECIAL_CHARS);
        }
 
        if(is_null($name))

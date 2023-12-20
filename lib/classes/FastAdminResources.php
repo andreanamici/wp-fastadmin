@@ -289,18 +289,18 @@ class FastAdminResources extends FastAdminCore
     {
         $submenu_slug   = $submenu_page['menu_slug'];
         
-        $submenu_page['callable'] = isset($submenu_page['callable']) ? $submenu_page['callable'] : $this->pages['admin'][$submenu_slug]['callable'];
+        $submenu_page['callable'] = isset($submenu_page['callable']) ? $submenu_page['callable'] : (isset($this->pages['admin'][$submenu_slug]) ? $this->pages['admin'][$submenu_slug]['callable'] : null);
                 
         $parent_slug    = !empty($submenu_page['parent_slug']) ? $submenu_page['parent_slug'] : (!empty($menu_page['menu_slug']) ? $menu_page['menu_slug'] : null);
         $submenu_title  = !empty($submenu_page['menu_title'])  ? $submenu_page['menu_title']  : null;
         $capability     = !empty($submenu_page['capability'])  ? $submenu_page['capability']  : null;
 
-        if(strstr($submenu_slug, WP_FA_PAGES_SLUG_PREFIX)  === false)
+        if(is_string($submenu_slug) && strstr($submenu_slug, WP_FA_PAGES_SLUG_PREFIX)  === false)
         {
             $submenu_slug = WP_FA_PAGES_SLUG_PREFIX.$submenu_slug;
         }
 
-        if(strstr($parent_slug, WP_FA_PAGES_SLUG_PREFIX) === false)
+        if(is_string($parent_slug) && strstr($parent_slug, WP_FA_PAGES_SLUG_PREFIX) === false)
         {
             $parent_slug = WP_FA_PAGES_SLUG_PREFIX.$parent_slug;
         }
